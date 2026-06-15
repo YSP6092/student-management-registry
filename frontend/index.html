@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Registry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4EFE3;
+    --card:#FBF7ED;
+    --ink:#1F2D3D;
+    --ink-soft:#5B6B7C;
+    --gold:#B8923B;
+    --gold-deep:#8C6D26;
+    --red:#A6443B;
+    --line:#D9CFB8;
+    --shadow: 0 10px 30px -12px rgba(31,45,61,0.25);
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image: radial-gradient(circle at 1px 1px, rgba(31,45,61,0.04) 1px, transparent 0);
+    background-size: 22px 22px;
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  .wrap{ max-width:1100px; margin:0 auto; padding:48px 28px 80px; }
+
+  /* ---------- HEADER ---------- */
+  header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    flex-wrap:wrap; gap:18px;
+    border-bottom:3px double var(--ink);
+    padding-bottom:22px; margin-bottom:42px;
+    animation: fadeDown .6s ease both;
+  }
+  header .title-block .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--gold-deep); margin:0 0 6px;
+  }
+  header h1{
+    font-family:'Fraunces',serif; font-weight:900;
+    font-size:clamp(34px,5vw,52px); line-height:1.0;
+    margin:0; letter-spacing:-0.01em;
+  }
+  header .sub{
+    font-size:14px; color:var(--ink-soft);
+    margin-top:8px; font-style:italic; font-family:'Fraunces',serif;
+  }
+  .ledger-no{
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    color:var(--ink-soft); text-align:right; line-height:1.7;
+  }
+  .ledger-no strong{ display:block; font-size:20px; color:var(--ink); letter-spacing:.08em; }
+
+  /* ---------- DASHBOARD ---------- */
+  .dashboard{ margin-bottom:42px; animation: cardIn .6s .05s ease both; }
+  .section-eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--gold-deep); margin-bottom:16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-eyebrow::after{ content:""; flex:1; height:1px; background:var(--line); }
+  .stat-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:14px; margin-bottom:20px;
+  }
+  .stat-card{
+    background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:18px 20px 16px; position:relative; overflow:hidden; box-shadow:var(--shadow);
+  }
+  .stat-card::before{
+    content:""; position:absolute; top:0; left:0; right:0;
+    height:3px; background:var(--gold); opacity:.6;
+  }
+  .stat-card.accent-red::before{ background:var(--red); }
+  .stat-card.accent-soft::before{ background:var(--ink-soft); }
+  .stat-label{
+    font-family:'JetBrains Mono',monospace; font-size:10px;
+    letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); margin-bottom:8px;
+  }
+  .stat-value{
+    font-family:'Fraunces',serif; font-weight:900;
+    font-size:32px; line-height:1; color:var(--ink); letter-spacing:-.01em;
+  }
+  .stat-sub{ font-size:12px; color:var(--ink-soft); margin-top:6px; font-style:italic; font-family:'Fraunces',serif; }
+  .chart-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media(max-width:620px){ .chart-grid{ grid-template-columns:1fr; } }
+  .chart-panel{
+    background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:20px 20px 16px; box-shadow:var(--shadow);
+  }
+  .chart-panel-full{
+    background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:20px 20px 16px; margin-top:18px; box-shadow:var(--shadow);
+  }
+  .panel-title{ font-family:'Fraunces',serif; font-weight:600; font-size:15px; color:var(--ink); margin-bottom:12px; }
+  .chart-legend{
+    display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px;
+    font-size:11px; color:var(--ink-soft); font-family:'JetBrains Mono',monospace;
+  }
+  .legend-dot{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:middle; }
+  .chart-note{ font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--ink-soft); margin-top:10px; font-style:italic; }
+
+  /* ---------- LAYOUT ---------- */
+  .layout{ display:grid; grid-template-columns:320px 1fr; gap:36px; align-items:start; }
+  @media(max-width:860px){ .layout{ grid-template-columns:1fr; } }
+
+  /* ---------- FORM ---------- */
+  .index-card{
+    background:var(--card); border:1px solid var(--line); border-radius:6px;
+    box-shadow:var(--shadow); padding:28px 26px 24px; position:relative;
+    transform:rotate(-0.6deg); animation: cardIn .6s .1s ease both;
+  }
+  .index-card::before{
+    content:""; position:absolute; top:-12px; left:36px;
+    width:64px; height:24px; background:rgba(184,146,59,0.35);
+    border:1px solid rgba(184,146,59,0.5); transform:rotate(-3deg); border-radius:2px;
+  }
+  .index-card h2{ font-family:'Fraunces',serif; font-weight:600; font-size:22px; margin:6px 0 4px; }
+  .index-card .hint{ font-size:12.5px; color:var(--ink-soft); margin:0 0 20px; line-height:1.5; }
+  .field{ margin-bottom:16px; }
+  .field label{
+    display:block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px;
+  }
+  .field input{
+    width:100%; border:none; border-bottom:1.5px solid var(--line);
+    background:transparent; padding:6px 2px 8px; font-size:15px;
+    font-family:'Inter',sans-serif; color:var(--ink); transition:border-color .2s;
+  }
+  .field input:focus{ outline:none; border-bottom-color:var(--gold); }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .btn{
+    width:100%; border:none; border-radius:4px; padding:13px 16px;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:14px;
+    letter-spacing:.02em; cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease, background .2s;
+  }
+  .btn:active{ transform:translateY(1px); }
+  .btn-primary{ background:var(--ink); color:var(--card); margin-top:6px; }
+  .btn-primary:hover{ background:#30435a; box-shadow:0 6px 16px -6px rgba(31,45,61,0.5); }
+  .btn-ghost{
+    background:transparent; border:1.5px solid var(--line);
+    color:var(--ink-soft); margin-top:8px; display:none;
+  }
+  .btn-ghost.show{ display:block; }
+  .btn-ghost:hover{ border-color:var(--ink-soft); color:var(--ink); }
+
+  /* ---------- LEDGER ---------- */
+  .ledger{
+    background:var(--card); border:1px solid var(--line); border-radius:6px;
+    box-shadow:var(--shadow); overflow:hidden; animation: cardIn .6s .2s ease both;
+  }
+  .ledger-head{ padding:20px 24px 16px; border-bottom:1px solid var(--line); }
+  .ledger-head-top{
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:14px; margin-bottom:14px;
+  }
+  .ledger-head h2{ font-family:'Fraunces',serif; font-weight:600; font-size:20px; margin:0; }
+  .ledger-head .count{
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    color:var(--ink-soft); letter-spacing:.1em; text-transform:uppercase; white-space:nowrap;
+  }
+  .toolbar{ display:flex; flex-wrap:wrap; gap:10px; }
+  .search-box{ position:relative; flex:1; min-width:160px; }
+  .search-box input{
+    width:100%; border:1px solid var(--line); border-radius:100px;
+    background:var(--paper); padding:9px 16px 9px 34px; font-size:13px;
+    font-family:'Inter',sans-serif; color:var(--ink); transition:border-color .2s;
+  }
+  .search-box input:focus{ outline:none; border-color:var(--gold); }
+  .search-box::before{
+    content:""; position:absolute; left:13px; top:50%;
+    width:11px; height:11px; border:1.5px solid var(--ink-soft);
+    border-radius:50%; transform:translateY(-60%);
+  }
+  .search-box::after{
+    content:""; position:absolute; left:22px; top:50%;
+    width:6px; height:1.5px; background:var(--ink-soft);
+    transform:translateY(60%) rotate(45deg); transform-origin:left center;
+  }
+  select#courseFilter{
+    border:1px solid var(--line); border-radius:100px; background:var(--paper);
+    padding:9px 16px; font-size:13px; font-family:'Inter',sans-serif;
+    color:var(--ink); cursor:pointer; min-width:160px; transition:border-color .2s;
+  }
+  select#courseFilter:focus{ outline:none; border-color:var(--gold); }
+  .export-btn{
+    border:1.5px solid var(--gold); background:rgba(184,146,59,0.08);
+    color:var(--gold-deep); border-radius:100px; padding:9px 18px;
+    font-size:13px; font-weight:600; font-family:'Inter',sans-serif;
+    cursor:pointer; white-space:nowrap; transition:background .15s, color .15s;
+  }
+  .export-btn:hover{ background:var(--gold); color:var(--card); }
+
+  .col-headers{
+    display:grid; grid-template-columns:56px 1.2fr 1fr auto;
+    gap:6px 18px; padding:10px 24px 10px 54px;
+    font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft);
+    border-bottom:1px solid var(--line);
+  }
+  .col-headers .sortable{ cursor:pointer; user-select:none; transition:color .15s; }
+  .col-headers .sortable:hover{ color:var(--ink); }
+  .col-headers .sortable.active{ color:var(--gold-deep); }
+  .col-headers .sort-arrow{ display:inline-block; margin-left:4px; font-size:9px; }
+  .col-headers .course-age-head{ display:flex; justify-content:space-between; padding-right:8px; }
+
+  .ledger-body{ position:relative; padding-left:54px; }
+  .ledger-body::before{
+    content:""; position:absolute; top:0; bottom:0; left:42px;
+    width:1px; background:rgba(166,68,59,0.35);
+  }
+  .ledger-body.is-empty::before{ display:none; }
+
+  .entry{
+    display:grid; grid-template-columns:56px 1.2fr 1fr auto;
+    gap:6px 18px; align-items:center;
+    padding:14px 24px 14px 0;
+    border-bottom:1px solid var(--line); position:relative;
+    transition:background .15s;
+  }
+  .entry:last-child{ border-bottom:none; }
+  .entry:hover{ background:rgba(184,146,59,0.06); }
+  .entry .num{
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    color:var(--ink-soft); position:absolute; left:-44px; top:16px;
+  }
+  .entry .name{ font-family:'Fraunces',serif; font-weight:600; font-size:17px; word-break:break-word; }
+  .entry .meta{
+    font-size:12.5px; color:var(--ink-soft); margin-top:3px;
+    font-family:'JetBrains Mono',monospace; word-break:break-all;
+  }
+  .entry .details{ min-width:0; }
+  .entry .course-badge{
+    display:inline-block; font-size:11.5px; font-weight:500;
+    padding:5px 12px; border:1px solid var(--gold); color:var(--gold-deep);
+    border-radius:100px; background:rgba(184,146,59,0.08); white-space:nowrap;
+    max-width:100%; overflow:hidden; text-overflow:ellipsis;
+  }
+  .entry .age{ font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink-soft); margin-top:6px; display:block; }
+  .entry .actions{ display:flex; gap:8px; justify-self:end; align-items:center; }
+  .icon-btn{
+    border:none; background:none; cursor:pointer;
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);
+    padding:4px 0; border-bottom:1px solid transparent;
+    transition:color .15s, border-color .15s;
+  }
+  .icon-btn:hover{ color:var(--ink); border-color:var(--ink); }
+  .icon-btn.danger:hover{ color:var(--red); border-color:var(--red); }
+  .icon-btn.view:hover{ color:var(--gold-deep); border-color:var(--gold-deep); }
+
+  /* ---------- PAGINATION ---------- */
+  .pagination{
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:12px; padding:16px 24px;
+    border-top:1px solid var(--line); font-family:'JetBrains Mono',monospace;
+    font-size:12px; color:var(--ink-soft);
+  }
+  .pagination .pages{ display:flex; align-items:center; gap:10px; }
+  .page-btn{
+    border:1px solid var(--line); background:var(--paper); color:var(--ink);
+    border-radius:4px; padding:6px 12px; font-family:'JetBrains Mono',monospace;
+    font-size:12px; cursor:pointer; transition:border-color .15s, color .15s;
+  }
+  .page-btn:hover:not(:disabled){ border-color:var(--gold); color:var(--gold-deep); }
+  .page-btn:disabled{ opacity:.4; cursor:default; }
+  select#pageSize{
+    border:1px solid var(--line); border-radius:4px; background:var(--paper);
+    padding:6px 10px; font-family:'JetBrains Mono',monospace; font-size:12px;
+    color:var(--ink); cursor:pointer;
+  }
+
+  @media(max-width:620px){
+    .entry{ grid-template-columns:1fr; gap:6px; padding-left:24px; }
+    .entry .actions{ justify-self:start; margin-top:6px; }
+    .entry .course-badge{ justify-self:start; }
+    .ledger-body{ padding-left:34px; }
+    .ledger-body::before{ left:22px; }
+    .entry .num{ left:-24px; }
+    .col-headers{ display:none; }
+    .toolbar{ flex-direction:column; }
+    select#courseFilter, .export-btn{ width:100%; }
+    .pagination{ flex-direction:column; align-items:flex-start; }
+  }
+
+  /* ---------- EMPTY STATE ---------- */
+  .empty{ padding:48px 24px; text-align:center; color:var(--ink-soft); }
+  .empty .stamp{
+    display:inline-block; font-family:'Fraunces',serif; font-weight:900;
+    font-size:13px; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--red); border:2px solid var(--red); padding:8px 18px;
+    border-radius:4px; transform:rotate(-4deg); margin-bottom:16px; opacity:.7;
+  }
+  .empty p{ margin:0; font-size:14px; }
+
+  /* ---------- TOAST ---------- */
+  #toast{
+    position:fixed; bottom:28px; left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--paper); font-size:13px;
+    font-family:'JetBrains Mono',monospace; letter-spacing:.04em;
+    padding:12px 22px; border-radius:4px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .25s; box-shadow:var(--shadow);
+    z-index:200; text-align:center; max-width:80vw;
+  }
+  #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---------- DRAWER ---------- */
+  .drawer-backdrop{
+    position:fixed; inset:0; background:rgba(31,45,61,0.35);
+    backdrop-filter:blur(2px); opacity:0; pointer-events:none;
+    transition:opacity .3s ease; z-index:100;
+  }
+  .drawer-backdrop.open{ opacity:1; pointer-events:all; }
+
+  .drawer{
+    position:fixed; top:0; right:0; bottom:0; width:min(520px,100vw);
+    background:var(--paper);
+    background-image:radial-gradient(circle at 1px 1px, rgba(31,45,61,0.04) 1px, transparent 0);
+    background-size:22px 22px; border-left:1px solid var(--line);
+    box-shadow:-12px 0 40px -8px rgba(31,45,61,0.2);
+    transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1);
+    z-index:101; display:flex; flex-direction:column; overflow:hidden;
+  }
+  .drawer.open{ transform:translateX(0); }
+
+  .drawer-header{
+    padding:28px 28px 20px; border-bottom:3px double var(--ink);
+    display:flex; justify-content:space-between; align-items:flex-start; flex-shrink:0;
+  }
+  .drawer-header .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:10px;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--gold-deep); margin:0 0 6px;
+  }
+  .drawer-header h2{
+    font-family:'Fraunces',serif; font-weight:900;
+    font-size:clamp(24px,4vw,32px); line-height:1; margin:0; letter-spacing:-.01em;
+  }
+  .drawer-close{
+    border:1.5px solid var(--line); background:transparent; color:var(--ink-soft);
+    border-radius:4px; width:36px; height:36px; font-size:18px; line-height:1;
+    cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    transition:border-color .15s, color .15s; margin-left:16px; margin-top:4px;
+  }
+  .drawer-close:hover{ border-color:var(--ink); color:var(--ink); }
+
+  .drawer-body{ flex:1; overflow-y:auto; padding:24px 28px 32px; }
+
+  .student-avatar{
+    width:64px; height:64px; border-radius:50%; background:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-weight:900; font-size:22px; color:var(--paper);
+    letter-spacing:.02em; margin-bottom:20px; flex-shrink:0;
+  }
+
+  .transcript-section{ margin-bottom:24px; }
+  .transcript-section-label{
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--gold-deep);
+    border-bottom:1px solid var(--line); padding-bottom:6px; margin-bottom:12px;
+  }
+  .transcript-row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding:9px 0; border-bottom:1px solid rgba(217,207,184,0.5); gap:16px;
+  }
+  .transcript-row:last-child{ border-bottom:none; }
+  .transcript-key{
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); flex-shrink:0;
+  }
+  .transcript-val{ font-family:'Inter',sans-serif; font-size:14px; color:var(--ink); text-align:right; word-break:break-all; }
+  .transcript-val.serif{ font-family:'Fraunces',serif; font-weight:600; font-size:16px; }
+
+  .cohort-bar-wrap{ margin-top:6px; }
+  .cohort-bar-track{ height:6px; background:var(--line); border-radius:100px; overflow:hidden; margin-top:8px; }
+  .cohort-bar-fill{ height:100%; background:var(--gold); border-radius:100px; transition:width .6s cubic-bezier(.4,0,.2,1); }
+  .cohort-bar-label{
+    display:flex; justify-content:space-between;
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink-soft); margin-top:5px;
+  }
+
+  .drawer-stamp{
+    display:inline-block; font-family:'Fraunces',serif; font-weight:900;
+    font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--gold-deep); border:2px solid var(--gold); padding:6px 14px;
+    border-radius:3px; transform:rotate(-2deg); opacity:.75;
+  }
+
+  .drawer-actions{
+    display:flex; gap:10px; padding:18px 28px;
+    border-top:1px solid var(--line); flex-shrink:0; background:var(--card);
+  }
+  .drawer-actions .btn{ margin:0; width:auto; flex:1; }
+
+  /* ---------- ANIMATIONS ---------- */
+  @keyframes fadeDown{ from{ opacity:0; transform:translateY(-12px); } to{ opacity:1; transform:translateY(0); } }
+  @keyframes cardIn{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
+  @media(prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="title-block">
+      <p class="eyebrow">Registrar &middot; Academic Records</p>
+      <h1>Student Registry</h1>
+      <p class="sub">A running ledger of every enrolled student</p>
+    </div>
+    <div class="ledger-no">
+      Volume
+      <strong>2026&ndash;001</strong>
+      <span id="todayDate"></span>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard">
+    <div class="section-eyebrow">Registrar &middot; Summary Dashboard</div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total enrolled</div>
+        <div class="stat-value" id="sc-total">—</div>
+        <div class="stat-sub">across all courses</div>
+      </div>
+      <div class="stat-card accent-soft">
+        <div class="stat-label">Average age</div>
+        <div class="stat-value" id="sc-age">—</div>
+        <div class="stat-sub">years old</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Courses offered</div>
+        <div class="stat-value" id="sc-courses">—</div>
+        <div class="stat-sub">distinct programmes</div>
+      </div>
+      <div class="stat-card accent-red">
+        <div class="stat-label">Largest cohort</div>
+        <div class="stat-value" id="sc-top-count">—</div>
+        <div class="stat-sub" id="sc-top-name">—</div>
+      </div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-panel">
+        <div class="panel-title">Enrolment by course</div>
+        <div class="chart-legend" id="course-legend"></div>
+        <div style="position:relative;height:220px;">
+          <canvas id="courseChart" role="img" aria-label="Horizontal bar chart showing student count per course"></canvas>
+        </div>
+      </div>
+      <div class="chart-panel">
+        <div class="panel-title">Age distribution</div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#8C6D26;"></span>students per age bracket</span>
+        </div>
+        <div style="position:relative;height:220px;">
+          <canvas id="ageChart" role="img" aria-label="Bar chart showing count of students grouped by age range"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="chart-panel-full">
+      <div class="panel-title">Registration trend</div>
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:#B8923B;border-radius:50%;"></span>new registrations</span>
+      </div>
+      <div style="position:relative;height:180px;">
+        <canvas id="trendChart" role="img" aria-label="Line chart showing student registration counts over time"></canvas>
+      </div>
+      <p class="chart-note">* Trend uses student IDs as a registration proxy. Add a <code>createdAt</code> field to your Student model for precise monthly data.</p>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- FORM -->
+    <div class="index-card">
+      <h2 id="formTitle">New entry</h2>
+      <p class="hint">Fill in the particulars below to add a student to the register.</p>
+      <form id="studentForm">
+        <input type="hidden" id="studentId">
+        <div class="row2">
+          <div class="field">
+            <label for="firstName">First name</label>
+            <input type="text" id="firstName" required>
+          </div>
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input type="text" id="lastName" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" required>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="age">Age</label>
+            <input type="number" id="age" min="1" required>
+          </div>
+          <div class="field">
+            <label for="course">Course</label>
+            <input type="text" id="course" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Add to register</button>
+        <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel edit</button>
+      </form>
+    </div>
+
+    <!-- LEDGER -->
+    <div class="ledger">
+      <div class="ledger-head">
+        <div class="ledger-head-top">
+          <h2>The Register</h2>
+          <span class="count" id="entryCount">0 entries</span>
+        </div>
+        <div class="toolbar">
+          <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search by name&hellip;">
+          </div>
+          <select id="courseFilter">
+            <option value="">All courses</option>
+          </select>
+          <button class="export-btn" id="exportBtn">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="col-headers">
+        <span></span>
+        <span class="sortable" data-sort="name">Name <span class="sort-arrow"></span></span>
+        <span class="course-age-head">
+          <span class="sortable" data-sort="course">Course <span class="sort-arrow"></span></span>
+          <span class="sortable" data-sort="age">Age <span class="sort-arrow"></span></span>
+        </span>
+        <span>Actions</span>
+      </div>
+
+      <div class="ledger-body" id="ledgerBody"></div>
+
+      <div class="pagination" id="pagination">
+        <span id="pageInfo">Page 1 of 1</span>
+        <div class="pages">
+          <label for="pageSize" style="font-family:inherit;">Rows:</label>
+          <select id="pageSize">
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <button class="page-btn" id="prevPage">&larr; Prev</button>
+          <button class="page-btn" id="nextPage">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- DRAWER -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="drawer" id="studentDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerName">
+  <div class="drawer-header">
+    <div>
+      <p class="eyebrow">Student Record</p>
+      <h2 id="drawerName">—</h2>
+    </div>
+    <button class="drawer-close" id="drawerClose" aria-label="Close record">&times;</button>
+  </div>
+  <div class="drawer-body">
+    <div id="drawerAvatar" class="student-avatar">—</div>
+    <div class="transcript-section">
+      <div class="transcript-section-label">Personal particulars</div>
+      <div class="transcript-row">
+        <span class="transcript-key">Student No.</span>
+        <span class="transcript-val" id="dr-id">—</span>
+      </div>
+      <div class="transcript-row">
+        <span class="transcript-key">Full name</span>
+        <span class="transcript-val serif" id="dr-name">—</span>
+      </div>
+      <div class="transcript-row">
+        <span class="transcript-key">Email</span>
+        <span class="transcript-val" id="dr-email">—</span>
+      </div>
+      <div class="transcript-row">
+        <span class="transcript-key">Age</span>
+        <span class="transcript-val" id="dr-age">—</span>
+      </div>
+      <div class="transcript-row">
+        <span class="transcript-key">Enrolled</span>
+        <span class="transcript-val" id="dr-created">—</span>
+      </div>
+    </div>
+    <div class="transcript-section">
+      <div class="transcript-section-label">Academic record</div>
+      <div class="transcript-row">
+        <span class="transcript-key">Course</span>
+        <span class="transcript-val serif" id="dr-course">—</span>
+      </div>
+      <div class="transcript-row">
+        <span class="transcript-key">Standing</span>
+        <span class="transcript-val" id="dr-standing">—</span>
+      </div>
+    </div>
+    <div class="transcript-section">
+      <div class="transcript-section-label">Cohort</div>
+      <div class="cohort-bar-wrap">
+        <div style="font-size:13px;color:var(--ink-soft);" id="dr-cohort-text">— students share this course</div>
+        <div class="cohort-bar-track">
+          <div class="cohort-bar-fill" id="dr-cohort-bar" style="width:0%"></div>
+        </div>
+        <div class="cohort-bar-label">
+          <span id="dr-cohort-pct">0% of total</span>
+          <span id="dr-cohort-count">0 students</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:8px;">
+      <span class="drawer-stamp" id="dr-stamp">Enrolled</span>
+    </div>
+  </div>
+  <div class="drawer-actions">
+    <button class="btn btn-primary" id="drawerEditBtn">Edit record</button>
+    <button class="btn btn-ghost show" id="drawerDeleteBtn" style="border-color:var(--red);color:var(--red);">Remove</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const API_URL = "http://localhost:8080/api/students";
+const GOLD="#B8923B", GOLD_D="#8C6D26", RED="#A6443B", INK="#1F2D3D", SOFT="#5B6B7C", LINE="#D9CFB8";
+const PALETTE=["#B8923B","#1F2D3D","#A6443B","#5B6B7C","#8C6D26","#7A8FA0","#D4B06A","#2E4A60"];
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+const chartBase={
+  responsive:true, maintainAspectRatio:false,
+  plugins:{
+    legend:{display:false},
+    tooltip:{
+      backgroundColor:INK, titleColor:"#F4EFE3", bodyColor:"#D9CFB8",
+      padding:10, cornerRadius:4,
+      titleFont:{family:"'JetBrains Mono',monospace",size:11},
+      bodyFont:{family:"'JetBrains Mono',monospace",size:11}
+    }
+  },
+  scales:{
+    x:{grid:{color:LINE+"55"},ticks:{color:SOFT,font:{family:"'JetBrains Mono',monospace",size:10}},border:{color:LINE}},
+    y:{grid:{color:LINE+"55"},ticks:{color:SOFT,font:{family:"'JetBrains Mono',monospace",size:10}},border:{color:LINE}}
+  }
+};
+let courseChartInst=null, ageChartInst=null, trendChartInst=null;
+
+function buildDashboard(students){
+  const total=students.length;
+  const ages=students.map(s=>s.age).filter(a=>a>0&&a<120);
+  const avgAge=ages.length?(ages.reduce((a,b)=>a+b,0)/ages.length).toFixed(1):"—";
+  const courseCounts={};
+  students.forEach(s=>{ if(s.course) courseCounts[s.course]=(courseCounts[s.course]||0)+1; });
+  const courseEntries=Object.entries(courseCounts).sort((a,b)=>b[1]-a[1]);
+  const top=courseEntries[0]||["—",0];
+
+  document.getElementById("sc-total").textContent=total.toLocaleString();
+  document.getElementById("sc-age").textContent=avgAge;
+  document.getElementById("sc-courses").textContent=courseEntries.length;
+  document.getElementById("sc-top-count").textContent=top[1];
+  document.getElementById("sc-top-name").textContent=top[0];
+
+  const topCourses=courseEntries.slice(0,8);
+  const courseLabels=topCourses.map(([c])=>c.length>18?c.slice(0,17)+"…":c);
+  const courseData=topCourses.map(([,n])=>n);
+  const courseColors=topCourses.map((_,i)=>PALETTE[i%PALETTE.length]);
+
+  document.getElementById("course-legend").innerHTML=topCourses.map(([c,n],i)=>
+    `<span><span class="legend-dot" style="background:${PALETTE[i%PALETTE.length]};"></span>${c.slice(0,14)} ${n}</span>`
+  ).join("");
+
+  const courseWrap=document.getElementById("courseChart").parentElement;
+  courseWrap.style.height=Math.max(220,topCourses.length*32+40)+"px";
+
+  if(courseChartInst) courseChartInst.destroy();
+  courseChartInst=new Chart(document.getElementById("courseChart"),{
+    type:"bar",
+    data:{labels:courseLabels,datasets:[{data:courseData,backgroundColor:courseColors,borderRadius:3,borderSkipped:false}]},
+    options:{...chartBase,indexAxis:"y",
+      scales:{
+        x:{...chartBase.scales.x,beginAtZero:true},
+        y:{...chartBase.scales.y,ticks:{...chartBase.scales.y.ticks,autoSkip:false}}
+      }
+    }
+  });
+
+  const brackets={};
+  ages.forEach(a=>{const b=Math.floor(a/2)*2;const l=`${b}–${b+1}`;brackets[l]=(brackets[l]||0)+1;});
+  const ageSorted=Object.entries(brackets).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
+
+  if(ageChartInst) ageChartInst.destroy();
+  ageChartInst=new Chart(document.getElementById("ageChart"),{
+    type:"bar",
+    data:{labels:ageSorted.map(([l])=>l),datasets:[{data:ageSorted.map(([,n])=>n),backgroundColor:GOLD+"CC",borderRadius:3}]},
+    options:{...chartBase,scales:{x:{...chartBase.scales.x,ticks:{...chartBase.scales.x.ticks,autoSkip:true,maxRotation:0}},y:{...chartBase.scales.y,beginAtZero:true}}}
+  });
+
+  const sorted=[...students].sort((a,b)=>(a.id||0)-(b.id||0));
+  const buckets=12,bSize=Math.ceil(sorted.length/buckets);
+  const tLabels=[],tData=[];
+  for(let i=0;i<buckets;i++){
+    const slice=sorted.slice(i*bSize,(i+1)*bSize);
+    if(!slice.length) break;
+    tLabels.push(`Batch ${i+1}`);
+    tData.push(slice.length);
+  }
+
+  if(trendChartInst) trendChartInst.destroy();
+  trendChartInst=new Chart(document.getElementById("trendChart"),{
+    type:"line",
+    data:{labels:tLabels,datasets:[{data:tData,borderColor:GOLD,backgroundColor:GOLD+"22",borderWidth:2,pointRadius:4,pointBackgroundColor:GOLD,fill:true,tension:0.35}]},
+    options:{...chartBase,scales:{x:{...chartBase.scales.x},y:{...chartBase.scales.y,beginAtZero:true}}}
+  });
+}
+
+/* ============================================================
+   REGISTRY
+   ============================================================ */
+const form          = document.getElementById("studentForm");
+const ledgerBody    = document.getElementById("ledgerBody");
+const entryCount    = document.getElementById("entryCount");
+const formTitle     = document.getElementById("formTitle");
+const submitBtn     = document.getElementById("submitBtn");
+const cancelBtn     = document.getElementById("cancelBtn");
+const toast         = document.getElementById("toast");
+const searchInput   = document.getElementById("searchInput");
+const courseFilter  = document.getElementById("courseFilter");
+const exportBtn     = document.getElementById("exportBtn");
+const pageSizeSelect= document.getElementById("pageSize");
+const prevPageBtn   = document.getElementById("prevPage");
+const nextPageBtn   = document.getElementById("nextPage");
+const pageInfo      = document.getElementById("pageInfo");
+
+let allStudents=[], filteredStudents=[];
+let currentPage=1, pageSize=25;
+let sortField=null, sortDir="asc";
+
+document.getElementById("todayDate").textContent=new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+
+function showToast(msg){
+  toast.textContent=msg;
+  toast.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t=setTimeout(()=>toast.classList.remove("show"),2200);
+}
+function val(v,fallback=""){ return (v===null||v===undefined)?fallback:v; }
+
+async function loadStudents(){
+  try{
+    const res=await fetch(API_URL);
+    if(!res.ok) throw new Error("Bad response: "+res.status);
+    const data=await res.json();
+    allStudents=Array.isArray(data)?data:(data.content||data.students||[]);
+    buildDashboard(allStudents);
+    populateCourseFilter();
+    applyFilters();
+  } catch(err){
+    ledgerBody.classList.add("is-empty");
+    ledgerBody.style.paddingLeft="0";
+    ledgerBody.innerHTML=`
+      <div class="empty">
+        <div class="stamp" style="color:var(--ink);border-color:var(--ink);">Offline</div>
+        <p>Could not reach the register. Make sure the API at <code>localhost:8080</code> is running.<br>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;">${err.message}</span></p>
+      </div>`;
+    entryCount.textContent="0 entries";
+    document.getElementById("pagination").style.display="none";
+  }
+}
+
+function populateCourseFilter(){
+  const courses=[...new Set(allStudents.map(s=>s.course).filter(Boolean))].sort();
+  const current=courseFilter.value;
+  courseFilter.innerHTML=`<option value="">All courses</option>`+
+    courses.map(c=>`<option value="${c}">${c}</option>`).join("");
+  if(courses.includes(current)) courseFilter.value=current;
+}
+
+function applyFilters(resetPage=true){
+  const q=searchInput.value.trim().toLowerCase();
+  const course=courseFilter.value;
+  filteredStudents=allStudents.filter(s=>{
+    const first=(s.firstName||"").toLowerCase();
+    const last=(s.lastName||"").toLowerCase();
+    const full=`${first} ${last}`.trim();
+    return (q===""||first.includes(q)||last.includes(q)||full.includes(q))&&
+           (course===""||s.course===course);
+  });
+  if(sortField){
+    filteredStudents.sort((a,b)=>{
+      let av,bv;
+      if(sortField==="name"){ av=`${a.firstName||""} ${a.lastName||""}`.trim().toLowerCase(); bv=`${b.firstName||""} ${b.lastName||""}`.trim().toLowerCase(); }
+      else if(sortField==="age"){ av=a.age??-Infinity; bv=b.age??-Infinity; }
+      else if(sortField==="course"){ av=(a.course||"").toLowerCase(); bv=(b.course||"").toLowerCase(); }
+      if(av<bv) return sortDir==="asc"?-1:1;
+      if(av>bv) return sortDir==="asc"?1:-1;
+      return 0;
+    });
+  }
+  if(resetPage) currentPage=1;
+  render();
+}
+
+function render(){
+  document.getElementById("pagination").style.display="";
+  entryCount.textContent=filteredStudents.length+(filteredStudents.length===1?" entry":" entries");
+  document.querySelectorAll(".col-headers .sortable").forEach(el=>{
+    const field=el.dataset.sort;
+    const arrow=el.querySelector(".sort-arrow");
+    el.classList.toggle("active",sortField===field);
+    arrow.textContent=sortField===field?(sortDir==="asc"?"\u25B2":"\u25BC"):"";
+  });
+  if(filteredStudents.length===0){
+    ledgerBody.classList.add("is-empty");
+    ledgerBody.style.paddingLeft="0";
+    const noResults=searchInput.value.trim().length>0||courseFilter.value!=="";
+    ledgerBody.innerHTML=`
+      <div class="empty">
+        <div class="stamp">${noResults?"No match":"Vacant"}</div>
+        <p>${noResults?"No students match your search or filter.":"No records yet &mdash; add the first entry using the card on the left."}</p>
+      </div>`;
+    pageInfo.textContent="Page 0 of 0";
+    prevPageBtn.disabled=true; nextPageBtn.disabled=true;
+    return;
+  }
+  ledgerBody.classList.remove("is-empty");
+  ledgerBody.style.paddingLeft="";
+  const totalPages=Math.max(1,Math.ceil(filteredStudents.length/pageSize));
+  if(currentPage>totalPages) currentPage=totalPages;
+  if(currentPage<1) currentPage=1;
+  const start=(currentPage-1)*pageSize;
+  const pageItems=filteredStudents.slice(start,start+pageSize);
+  ledgerBody.innerHTML=pageItems.map((s,i)=>`
+    <div class="entry">
+      <span class="num">${String(start+i+1).padStart(2,"0")}</span>
+      <div class="details">
+        <div class="name">${val(s.firstName)} ${val(s.lastName)}</div>
+        <div class="meta">${val(s.email,"&mdash;")}</div>
+      </div>
+      <div class="details">
+        <span class="course-badge">${val(s.course,"Undeclared")}</span>
+        <span class="age">Age ${val(s.age,"&mdash;")} &middot; No.&nbsp;${val(s.id)}</span>
+      </div>
+      <div class="actions">
+        <button class="icon-btn view" onclick="openDrawer(${s.id})">View</button>
+        <button class="icon-btn" onclick="editStudent(${s.id})">Edit</button>
+        <button class="icon-btn danger" onclick="deleteStudent(${s.id})">Remove</button>
+      </div>
+    </div>`).join("");
+  pageInfo.textContent=`Page ${currentPage} of ${totalPages} \u00B7 ${filteredStudents.length} total`;
+  prevPageBtn.disabled=currentPage<=1;
+  nextPageBtn.disabled=currentPage>=totalPages;
+}
+
+searchInput.addEventListener("input",()=>applyFilters());
+courseFilter.addEventListener("change",()=>applyFilters());
+
+document.querySelectorAll(".col-headers .sortable").forEach(el=>{
+  el.addEventListener("click",()=>{
+    const field=el.dataset.sort;
+    if(sortField===field){ sortDir=sortDir==="asc"?"desc":"asc"; }
+    else { sortField=field; sortDir="asc"; }
+    applyFilters(false);
+  });
+});
+
+pageSizeSelect.addEventListener("change",()=>{ pageSize=parseInt(pageSizeSelect.value); currentPage=1; render(); });
+prevPageBtn.addEventListener("click",()=>{ currentPage--; render(); });
+nextPageBtn.addEventListener("click",()=>{ currentPage++; render(); });
+
+exportBtn.addEventListener("click",()=>{
+  if(filteredStudents.length===0){ showToast("Nothing to export"); return; }
+  const headers=["ID","First Name","Last Name","Email","Age","Course"];
+  const rows=filteredStudents.map(s=>[s.id,s.firstName,s.lastName,s.email,s.age,s.course]);
+  const esc=cell=>{ const str=String(cell??""); return (str.includes(",")||str.includes('"')||str.includes("\n"))?'"'+str.replace(/"/g,'""')+'"':str; };
+  const csv=[headers,...rows].map(row=>row.map(esc).join(",")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download=`students_export_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast(`Exported ${filteredStudents.length} record${filteredStudents.length===1?"":"s"}`);
+});
+
+form.addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  const id=document.getElementById("studentId").value;
+  const student={
+    firstName:document.getElementById("firstName").value.trim(),
+    lastName:document.getElementById("lastName").value.trim(),
+    email:document.getElementById("email").value.trim(),
+    age:parseInt(document.getElementById("age").value),
+    course:document.getElementById("course").value.trim()
+  };
+  try{
+    let res;
+    if(id){
+      res=await fetch(`${API_URL}/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(student)});
+      if(!res.ok) throw new Error("Update failed: "+res.status);
+      showToast("Entry updated");
+    } else {
+      res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(student)});
+      if(!res.ok) throw new Error("Save failed: "+res.status);
+      showToast("Entry added to register");
+    }
+    resetForm();
+    await loadStudents();
+  } catch(err){ showToast("Could not save entry: "+err.message); }
+});
+
+cancelBtn.addEventListener("click",resetForm);
+
+function resetForm(){
+  form.reset();
+  document.getElementById("studentId").value="";
+  formTitle.textContent="New entry";
+  submitBtn.textContent="Add to register";
+  cancelBtn.classList.remove("show");
+}
+
+async function editStudent(id){
+  const student=allStudents.find(s=>s.id===id);
+  if(!student) return;
+  document.getElementById("studentId").value=student.id;
+  document.getElementById("firstName").value=val(student.firstName);
+  document.getElementById("lastName").value=val(student.lastName);
+  document.getElementById("email").value=val(student.email);
+  document.getElementById("age").value=val(student.age);
+  document.getElementById("course").value=val(student.course);
+  formTitle.textContent="Amend entry";
+  submitBtn.textContent="Save changes";
+  cancelBtn.classList.add("show");
+  document.querySelector(".index-card").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+async function deleteStudent(id){
+  if(!confirm("Remove this student from the register?")) return;
+  try{
+    const res=await fetch(`${API_URL}/${id}`,{method:"DELETE"});
+    if(!res.ok) throw new Error("Delete failed: "+res.status);
+    showToast("Entry removed");
+    await loadStudents();
+  } catch(err){ showToast("Could not remove entry: "+err.message); }
+}
+
+/* ============================================================
+   DRAWER
+   ============================================================ */
+const drawer          = document.getElementById("studentDrawer");
+const drawerBackdrop  = document.getElementById("drawerBackdrop");
+const drawerClose     = document.getElementById("drawerClose");
+const drawerEditBtn   = document.getElementById("drawerEditBtn");
+const drawerDeleteBtn = document.getElementById("drawerDeleteBtn");
+let drawerStudentId   = null;
+
+function openDrawer(id){
+  const s=allStudents.find(s=>s.id===id);
+  if(!s) return;
+  drawerStudentId=id;
+
+  const initials=`${(s.firstName||"?")[0]}${(s.lastName||"?")[0]}`.toUpperCase();
+  document.getElementById("drawerAvatar").textContent=initials;
+  document.getElementById("drawerName").textContent=`${val(s.firstName)} ${val(s.lastName)}`;
+  document.getElementById("dr-id").textContent=`#${val(s.id)}`;
+  document.getElementById("dr-name").textContent=`${val(s.firstName)} ${val(s.lastName)}`;
+  document.getElementById("dr-email").textContent=val(s.email,"—");
+  document.getElementById("dr-age").textContent=s.age?`${s.age} years old`:"—";
+
+  const created=s.createdAt
+    ?new Date(s.createdAt).toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"})
+    :"—";
+  document.getElementById("dr-created").textContent=created;
+  document.getElementById("dr-course").textContent=val(s.course,"Undeclared");
+
+  let standing="—";
+  if(s.age){ standing=s.age<20?"First year":s.age<22?"Second year":s.age<24?"Third year":"Postgraduate"; }
+  document.getElementById("dr-standing").textContent=standing;
+
+  const coursemates=allStudents.filter(x=>x.course===s.course).length;
+  const pct=allStudents.length?Math.round(coursemates/allStudents.length*100):0;
+  document.getElementById("dr-cohort-text").textContent=`${coursemates} student${coursemates===1?"":"s"} share this course`;
+  document.getElementById("dr-cohort-count").textContent=`${coursemates} students`;
+  document.getElementById("dr-cohort-pct").textContent=`${pct}% of total`;
+  document.getElementById("dr-cohort-bar").style.width="0%";
+  setTimeout(()=>{ document.getElementById("dr-cohort-bar").style.width=pct+"%"; },50);
+
+  document.getElementById("dr-stamp").textContent=s.course?s.course.split(" ")[0]:"Enrolled";
+
+  drawer.classList.add("open");
+  drawerBackdrop.classList.add("open");
+  drawerClose.focus();
+}
+
+function closeDrawer(){
+  drawer.classList.remove("open");
+  drawerBackdrop.classList.remove("open");
+  document.getElementById("dr-cohort-bar").style.width="0%";
+}
+
+drawerClose.addEventListener("click",closeDrawer);
+drawerBackdrop.addEventListener("click",closeDrawer);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeDrawer(); });
+
+drawerEditBtn.addEventListener("click",()=>{
+  closeDrawer();
+  editStudent(drawerStudentId);
+});
+
+drawerDeleteBtn.addEventListener("click",async()=>{
+  if(!confirm("Remove this student from the register?")) return;
+  try{
+    const res=await fetch(`${API_URL}/${drawerStudentId}`,{method:"DELETE"});
+    if(!res.ok) throw new Error("Delete failed: "+res.status);
+    closeDrawer();
+    showToast("Entry removed");
+    await loadStudents();
+  } catch(err){ showToast("Could not remove: "+err.message); }
+});
+
+loadStudents();
+</script>
+</body>
+</html>
